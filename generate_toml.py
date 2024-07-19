@@ -8,8 +8,7 @@ from typing import List
 topics_t = r""""\\[topic\\]",
 """
 
-dependencies_t = r""""\\[dependency\\]",
-"""
+dependencies_t = r""""\\[dependency\\]","""
 
 template = r"""[build-system]
 requires = ["setuptools>=61.0.0", "wheel"]
@@ -130,7 +129,7 @@ def empty_readme():
 
 
 def generate_requirements(dependencies_f: str):
-    dependencies_f = dependencies_f.replace('"', "")
+    dependencies_f = dependencies_f.replace('"', "").replace(',', "")
     with open("requirements.txt", "w") as file:
         file.write(dependencies_f)
 
@@ -151,12 +150,25 @@ options = Options(
 kwargs = Kwargs(
     version="0.1.0",
     name_space="crimson",
-    module_name="package-name",
-    description="Your package description.",
+    module_name="converter-center",
+    description="It is a module to manage and control the whole migration of nobuco.",
     # https://pypi.org/classifiers/
     topics=["Topic :: Software Development :: Libraries :: Python Modules"],
-    dependencies=["crimson-intelli-type>=0.3,<0.4"],
+    dependencies=[
+        "crimson-intelli-type>=0.3.0,<0.4.0",
+        "torch==2.1.1",
+        "torchvision==0.16.1",
+        "torchaudio==2.1.1",
+        "tensorflow==2.15.0.post1",
+        "sty>=1.0.0"
+        ],
 )
+
+
+
+
+
+
 
 
 kwargs_skeleton = kwargs.model_copy()
@@ -171,9 +183,9 @@ template: str = add_options(template, options=options)
 
 pyproject_body: str = format_insert(template, **kwargs.model_dump())
 
-topics_f: str = format_insert_loop(topics_t, kwargs={"topic": kwargs.topics})
+topics_f: str = format_insert_loop(topics_t, kwargs_list={"topic": kwargs.topics})
 dependencies_f: str = format_insert_loop(
-    dependencies_t, kwargs={"dependency": kwargs.dependencies}
+    dependencies_t, kwargs_list={"dependency": kwargs.dependencies}
 )
 
 pyproject_body: str = format_indent(
